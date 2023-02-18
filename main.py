@@ -21,7 +21,7 @@ load_dotenv()
 # Configuration of telegram API key in this dir also needed.
 # import telegram_send
 
-logfile = os.getenv("SLEEP_DATA_PATH") + '/sleepy_logs.log'
+logfile = os.environ.get("SLEEP_DATA_PATH") + '/sleepy_logs.log'
 logging.basicConfig(filename=logfile,
                     filemode='a+',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -67,7 +67,7 @@ class SleepyBaby():
         self.ser = None # serial connection to arduino for controlling demon owl
 
         # If demon owl mode, setup connection to arduino and cast service for playing audio
-        if os.getenv("OWL", 'False').lower() in ('true', '1'):
+        if os.environ.get("OWL", 'False').lower() in ('true', '1'):
             print("\nCAWWWWWW\n")
             self.cast_service = CastSoundService()
             self.ser = serial.Serial('/dev/ttyACM0', 9600, timeout=0)
@@ -138,7 +138,7 @@ class SleepyBaby():
             debug_img = cv2.putText(debug_img, "Left wrist", (int(left_wrist_coords[0]), int(left_wrist_coords[1])), 2, 1, (255,0,0), 2, 2)
             debug_img = cv2.putText(debug_img, "Right wrist", (int(right_wrist_coords[0]), int(right_wrist_coords[1])), 2, 1, (255,0,0), 2, 2)
 
-            if os.getenv("DEBUG", 'False').lower() in ('true', '1'):
+            if os.environ.get("DEBUG", 'False').lower() in ('true', '1'):
                 CUTOFF_THRESHOLD = 10  # head and face
                 MY_CONNECTIONS = frozenset([t for t in self.mpPose.POSE_CONNECTIONS if t[0] > CUTOFF_THRESHOLD and t[1] > CUTOFF_THRESHOLD])
 
@@ -208,7 +208,7 @@ class SleepyBaby():
     @debounce(180)
     def need_to_clean_this_up(self, wake_status, img):
         str_timestamp = str(int(time.time()))
-        sleep_data_base_path = os.getenv("SLEEP_DATA_PATH")
+        sleep_data_base_path = os.environ.get("SLEEP_DATA_PATH")
         p = sleep_data_base_path + '/' + str_timestamp + '.png'
         if wake_status: # woke up
             log_string = "1," + str_timestamp + "\n"
@@ -226,7 +226,7 @@ class SleepyBaby():
 
             self.is_awake = True
 
-            if os.getenv("OWL", 'False').lower() in ('true', '1'):
+            if os.environ.get("OWL", 'False').lower() in ('true', '1'):
                 print("MOVE & MAKE NOISE")
                 logging.info("MOVE & MAKE NOISE")
                 time.sleep(5)
@@ -336,7 +336,7 @@ class SleepyBaby():
         self.set_wakeness_status(debug_img)
         self.periodic_wakeness_check()
 
-        if os.getenv("DEBUG", 'False').lower() in ('true', '1'):
+        if os.environ.get("DEBUG", 'False').lower() in ('true', '1'):
             avg_awake = sum(self.awake_q) / len(self.awake_q)
             
             # draw progress bar
@@ -367,7 +367,7 @@ class SleepyBaby():
 
     # This basically does the same thing as the live version, but is very useful for testing
     def recorded(self):
-        cap = cv2.VideoCapture(os.getenv("VIDEO_PATH"))
+        cap = cv2.VideoCapture(os.environ.get("VIDEO_PATH"))
         success, img = cap.read()
         while success:
             frame = None
@@ -398,7 +398,7 @@ class SleepyBaby():
                         # reapply cropped and modified/marked up img back to img which is displayed
                         img[y:y+h, x:x+w] = debug_img
 
-                        if os.getenv("DEBUG", 'False').lower() in ('true', '1'):
+                        if os.environ.get("DEBUG", 'False').lower() in ('true', '1'):
                             asleep = sum(self.awake_q) / len(self.awake_q) < 0.6
                             text = 'Sleepy Baby' if asleep else 'Wakey Baby'
                             text_color = (255,191,0) if asleep else (0,140,255)
@@ -480,7 +480,7 @@ class SleepyBaby():
                 # reapply cropped and modified/marked up img back to img which is displayed
                 img[y:y+h, x:x+w] = debug_img
                  
-                if os.getenv("DEBUG", 'False').lower() in ('true', '1'):
+                if os.environ.get("DEBUG", 'False').lower() in ('true', '1'):
                     try:
                         cv2.rectangle(img=img, pt1=(x, y), pt2=(x+w, y+h), color=[153,50,204], thickness=2)
                         tmp = img[y:y+h, x:x+w]
@@ -545,7 +545,7 @@ _thread.start_new_thread(start_server, ())
 
 def receive(producer_q):
     print("Start receiving frames.")
-    rtsp_stream = os.getenv("RTSP_STREAM")
+    rtsp_stream = os.environ.get("RTSP_STREAM")
 
     os.environ['OPENCV_FFMPEG_CAPTURE_OPTIONS'] = 'rtsp_transport;tcp' # Use tcp instead of udp if stream is unstable
     c = cv2.VideoCapture(rtsp_stream)
