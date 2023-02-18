@@ -545,13 +545,10 @@ _thread.start_new_thread(start_server, ())
 
 def receive(producer_q):
     print("Start receiving frames.")
-    cam_ip = os.environ['CAM_IP']
-    cam_pw = os.environ['CAM_PW']
-    connect_str = "rtsp://admin:" + cam_pw + "@" + cam_ip
-    connect_str2 = connect_str + ":554" + "//h264Preview_01_main" # this might be different depending on camera used
+    rtsp_stream = os.getenv("RTSP_STREAM")
 
     os.environ['OPENCV_FFMPEG_CAPTURE_OPTIONS'] = 'rtsp_transport;tcp' # Use tcp instead of udp if stream is unstable
-    c = cv2.VideoCapture(connect_str)
+    c = cv2.VideoCapture(rtsp_stream)
 
     next_frame = 0
     fps = 30

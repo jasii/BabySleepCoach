@@ -21,6 +21,7 @@ RUN pip3 install -r /app/requirements.txt
 COPY . /app
 
 # Set environment variables
+ENV RTSP_STREAM=rtsp://
 ENV SLEEP_DATA_PATH=/path/to/sleep/data
 ENV DEBUG=False
 ENV OWL=False
